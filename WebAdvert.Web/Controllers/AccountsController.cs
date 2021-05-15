@@ -95,8 +95,9 @@ namespace WebAdvert.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Login(LoginModel model)
+        public async Task<IActionResult> Login()
         {
+            var model = new LoginModel();
             return View(model);
         }
 
