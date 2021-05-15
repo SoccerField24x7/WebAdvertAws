@@ -57,8 +57,10 @@ namespace WebAdvert.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Confirm(ConfirmModel model)
+        public async Task<IActionResult> Confirm()
         {
+            var model = new ConfirmModel();
+
             return View(model);
         }
 
@@ -71,7 +73,7 @@ namespace WebAdvert.Web.Controllers
                 if (user == null)
                 {
                     ModelState.AddModelError("NotFound", "A user with the given email address was not found");
-                    return View(model);
+                    return View("Confirm", model);
                 }
 
                 //var result = await (_userManager as CognitoUserManager<CognitoUser>).ConfirmEmailAsync(user, model.Code);
@@ -89,7 +91,7 @@ namespace WebAdvert.Web.Controllers
                 }
             }
             
-            return View(model);
+            return View("Confirm", model);
         }
 
         [HttpGet]
