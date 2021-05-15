@@ -42,12 +42,14 @@ namespace WebAdvert.Web.Controllers
                     return View(model);
                 }
 
+                user = new CognitoUser(model.Email, "3eg1h8pmrlmlk5vj9r5nuftcnv", _pool, null);
+
                 user.Attributes.Add(CognitoAttribute.Name.AttributeName, model.Email);
                 var createdUser = await _userManager.CreateAsync(user, model.Password);
 
                 if (createdUser.Succeeded)
                 {
-                    RedirectToAction("Confirm");
+                    return RedirectToAction("Confirm");
                 }
             }
 
@@ -60,7 +62,7 @@ namespace WebAdvert.Web.Controllers
             return View(model);
         }
 
-        [HttpPost("confirm")]
+        [HttpPost("{controller}/confirm")]
         public async Task<IActionResult> SaveConfirmation(ConfirmModel model)
         {
             if (ModelState.IsValid)
@@ -73,8 +75,9 @@ namespace WebAdvert.Web.Controllers
                 }
 
                 //var result = await (_userManager as CognitoUserManager<CognitoUser>).ConfirmEmailAsync(user, model.Code);
+                var result = await ((CognitoUserManager<CognitoUser>)_userManager).ConfirmSignUpAsync(user, model.Code, true);
 
-                var result = await _userManager.ConfirmEmailAsync(user, model.Code);
+                //var result = await _userManager.ConfirmEmailAsync(user, model.Code);
                 if (result.Succeeded)
                 {
                     return RedirectToAction("Index", "Home");
@@ -87,6 +90,30 @@ namespace WebAdvert.Web.Controllers
             }
             
             return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Login(LoginModel model)
+        {
+            return View(model);
+        }
+
+        [HttpPost]
+        [Route("{controller}/login")]
+        public async Task<IActionResult> LoginPost (LoginModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+
+                ModelState.AddModelError("LoginError", "Email and password do not match.");
+            }
+
+            return View("Login", model);
         }
     }
 }
