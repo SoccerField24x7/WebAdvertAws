@@ -13,7 +13,7 @@ namespace WebAdvert.Web.Models.Accounts
         [EmailAddress]
         public string Email { get; set; }
 
-        [Required(ErrorMessage ="Cod is required.")]
+        [Required(ErrorMessage ="Code is required.")]
         public string Code { get; set; }
     }
 }
