@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebAdvert.Web.Services;
 
 namespace WebAdvert.Web
 {
@@ -39,6 +40,8 @@ namespace WebAdvert.Web
             services.ConfigureApplicationCookie(options => {
                 options.LoginPath = "/accounts/login";
             });
+
+            services.AddTransient<IFileUploader, S3FileUploader>();
 
             services.AddControllersWithViews();
         }
