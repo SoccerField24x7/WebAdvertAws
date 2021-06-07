@@ -110,6 +110,7 @@ ipch/
 # Visual Studio profiler
 *.psess
 *.vsp
+B
 *.vspx
 *.sap
 
@@ -297,6 +298,7 @@ _Pvt_Extensions
 paket-files/
 
 # FAKE - F# Make
+B
 .fake/
 
 # CodeRush personal settings
@@ -347,4 +349,7 @@ healthchecksdb
 MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
-.ionide/
+.iionide/
+
+# VS Code
+.vscode/
