@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using AdvertApi.Models;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using AutoMapper;
+using System.Net;
 
 namespace WebAdvert.Web.ServiceClients
 {
@@ -11,9 +13,11 @@ namespace WebAdvert.Web.ServiceClients
     {
         private readonly IConfiguration _config;
         private readonly HttpClient _client;
+        private readonly IMapper _mapper;
 
-        public AdvertApiClient(IConfiguration config, HttpClient client)
+        public AdvertApiClient(IConfiguration config, HttpClient client, IMapper mapper)
         {
+            _mapper = mapper;
             _client = client;
             _config = config;
 
@@ -22,17 +26,28 @@ namespace WebAdvert.Web.ServiceClients
             _client.DefaultRequestHeaders.Add("Content-type", "application/json");
 
         }
+
+        public async Task<bool> Confirm(ConfirmAdvertRequest model)
+        {
+            var advertModel = _mapper.Map<ConfirmAdvertModel>(model);
+            var jsonModel = JsonConvert.SerializeObject(advertModel);
+
+            var response = await _client.PutAsync(new Uri($"{_client.BaseAddress}/confirm"), new StringContent(jsonModel));
+
+            return response.StatusCode == HttpStatusCode.OK;
+        }
+
         public async Task<AdvertResponse> Create(AdvertModel model)
         {
-            var advertApiModel = new AdvertModel(); // automapper
+            var advertApiModel = _mapper.Map<AdvertModel>(model);
             var jsonModel = JsonConvert.SerializeObject(model);
-            var response = await _client.PostAsync(_client.BaseAddress, new StringContent(jsonModel));
+            var response = await _client.PostAsync(new Uri($"{_client.BaseAddress}/create"), new StringContent(jsonModel));
 
             var responseJson = await response.Content.ReadAsStringAsync();
 
             var createAdvertResponse = JsonConvert.DeserializeObject<CreateAdvertResponse>(responseJson);
 
-            var advertResponse = new AdvertResponse(); // automapper
+            var advertResponse = _mapper.Map<AdvertResponse>(createAdvertResponse);
 
             return advertResponse;
         }
