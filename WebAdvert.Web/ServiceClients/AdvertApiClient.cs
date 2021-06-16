@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using AutoMapper;
 using System.Net;
+using System.Net.Http.Headers;
 
 namespace WebAdvert.Web.ServiceClients
 {
@@ -21,13 +22,12 @@ namespace WebAdvert.Web.ServiceClients
             _client = client;
             _config = config;
 
-            var createUrl = _config.GetSection("AdvertApi").GetValue<string>("CreateUrl");
+            var createUrl = _config.GetSection("AdvertApi").GetValue<string>("BaseUrl");
             _client.BaseAddress = new Uri(createUrl);
-            _client.DefaultRequestHeaders.Add("Content-type", "application/json");
-
+            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        public async Task<bool> Confirm(ConfirmAdvertRequest model)
+        public async Task<bool> ConfirmAsync(ConfirmAdvertRequest model)
         {
             var advertModel = _mapper.Map<ConfirmAdvertModel>(model);
             var jsonModel = JsonConvert.SerializeObject(advertModel);
@@ -37,7 +37,7 @@ namespace WebAdvert.Web.ServiceClients
             return response.StatusCode == HttpStatusCode.OK;
         }
 
-        public async Task<AdvertResponse> Create(AdvertModel model)
+        public async Task<AdvertResponse> CreateAsync(CreateAdvertModel model)
         {
             var advertApiModel = _mapper.Map<AdvertModel>(model);
             var jsonModel = JsonConvert.SerializeObject(model);
