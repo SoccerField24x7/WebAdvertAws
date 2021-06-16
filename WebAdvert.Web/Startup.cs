@@ -10,6 +10,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using WebAdvert.Web.ServiceClients;
 using WebAdvert.Web.Services;
+using Polly;
+using Polly.Extensions.Http;
+using System.Net.Http;
+using System.Net;
 
 namespace WebAdvert.Web
 {
@@ -42,10 +46,27 @@ namespace WebAdvert.Web
                 options.LoginPath = "/accounts/login";
             });
 
+            services.AddAutoMapper(typeof(Startup));
+
             services.AddTransient<IFileUploader, S3FileUploader>();
-            services.AddHttpClient<IAdvertApiClient, AdvertApiClient>();
+            services.AddHttpClient<IAdvertApiClient, AdvertApiClient>()
+                .AddPolicyHandler(GetRetryPolicy())
+                .AddPolicyHandler(GetCircuitBreakerPatternPolicy());
 
             services.AddControllersWithViews();
+        }
+
+        private IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPatternPolicy()
+        {
+            return HttpPolicyExtensions.HandleTransientHttpError()
+                .CircuitBreakerAsync(3, TimeSpan.FromSeconds(30));
+        }
+
+        private IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+        {
+            return HttpPolicyExtensions.HandleTransientHttpError()
+                .OrResult(msg => msg.StatusCode == HttpStatusCode.NotFound)
+                .WaitAndRetryAsync(5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
