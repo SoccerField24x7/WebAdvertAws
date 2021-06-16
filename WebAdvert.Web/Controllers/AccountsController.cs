@@ -107,8 +107,18 @@ namespace WebAdvert.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
-                if (result.Succeeded)
+                Microsoft.AspNetCore.Identity.SignInResult result = null;
+                
+                try
+                {
+                    result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+                }
+                catch(Exception ex)
+                {
+                    ModelState.AddModelError("LoginError", ex.Message);
+                }
+                
+                if (result != null && result.Succeeded)
                 {
                     return RedirectToAction("Index", "Home");
                 }
