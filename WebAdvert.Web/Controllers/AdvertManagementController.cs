@@ -52,8 +52,7 @@ namespace WebAdvert.Web.Controllers
                     {
                         using (var readStream = imageFile.OpenReadStream())
                         {
-                            var result = await _fileUploader.UploadFileAsync(filePath, readStream)
-                                .ConfigureAwait(false);
+                            var result = await _fileUploader.UploadFileAsync(filePath, readStream);
                             if (!result)
                                 throw new Exception(
                                     "Could not upload the image to file repository. Please see the logs for details.");
@@ -71,8 +70,6 @@ namespace WebAdvert.Web.Controllers
                         await _advertApiClient.ConfirmAsync(confirmModel);
                         Console.WriteLine(e);
                     }
-
-
                 }
 
                 if (isOkToConfirmAd)
@@ -83,7 +80,12 @@ namespace WebAdvert.Web.Controllers
                         FilePath = filePath,
                         Status = AdvertStatus.Active
                     };
-                    await _advertApiClient.ConfirmAsync(confirmModel).ConfigureAwait(false);
+
+                    var canConfirm = await _advertApiClient.ConfirmAsync(confirmModel);
+                    if (!canConfirm)
+                    {
+                        throw new Exception($"Cannot confirm advert of id = {id}");
+                    }
                 }
 
                 return RedirectToAction("Index", "Home");
