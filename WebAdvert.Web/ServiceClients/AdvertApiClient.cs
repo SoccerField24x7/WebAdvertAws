@@ -8,6 +8,8 @@ using AutoMapper;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace WebAdvert.Web.ServiceClients
 {
@@ -41,7 +43,7 @@ namespace WebAdvert.Web.ServiceClients
         public async Task<AdvertResponse> CreateAsync(CreateAdvertModel model)
         {
             var advertApiModel = _mapper.Map<AdvertModel>(model);
-            var jsonModel = JsonConvert.SerializeObject(model);
+            var jsonModel = JsonConvert.SerializeObject(advertApiModel);
             var response = await _client.PostAsync(new Uri($"{_client.BaseAddress}/create"), new StringContent(jsonModel, Encoding.UTF8, "application/json"));
 
             var responseJson = await response.Content.ReadAsStringAsync();
@@ -51,6 +53,14 @@ namespace WebAdvert.Web.ServiceClients
             var advertResponse = _mapper.Map<AdvertResponse>(createAdvertResponse);
 
             return advertResponse;
+        }
+
+        public async Task<System.Collections.Generic.List<Advertisement>> GetAllAsync()
+        {
+            var apiCallResponse = await _client.GetAsync(new Uri($"{_client.BaseAddress}/all"));
+            var allAdvertModels = await apiCallResponse.Content.ReadAsAsync<List<AdvertModel>>();
+
+            return allAdvertModels.Select(x => _mapper.Map<Advertisement>(x)).ToList();
         }
     }
 }
