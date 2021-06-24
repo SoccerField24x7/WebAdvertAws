@@ -54,8 +54,7 @@ namespace WebAdvert.Web.Controllers
                         {
                             var result = await _fileUploader.UploadFileAsync(filePath, readStream);
                             if (!result)
-                                throw new Exception(
-                                    "Could not upload the image to file repository. Please see the logs for details.");
+                                throw new Exception("Could not upload the image to file repository. Please see the logs for details.");
                         }
                     }
                     catch (Exception e)
